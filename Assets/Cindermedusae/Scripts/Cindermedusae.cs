@@ -35,34 +35,36 @@ public class CinderMedusae : MonoBehaviour {
 
 	public bool animate;
 
-	public float AnimationFrequency = 1f;
-	public float AnimationSpeed = 4f;
-	public float AnimationAmount = 3f;
-	public float TentacleAnimationMultiplier = 0.5f;
-
+	public float HeadAnimationFrequency = .2f;
+	public float HeadAnimationSpeed = 1.5f;
+	public float HeadAnimationAmount = 32f;
+	public float TentacleAnimationFrequency = .5f;
+	public float TentacleAnimationSpeed = 1.5f;
+	public float TentacleAnimationAmount = 8f;
+	
 	private Mesh mesh;
 	private MeshFilter meshFilter;
 	private int bodyVertexCount;
 	
-	private List<Vector3> vertices;
+	private List<Vector3> initialVertices;
 	private List<Vector3> normals;
 	
 
 	void Start () {
 		meshFilter = gameObject.GetComponent<MeshFilter>();
-		vertices.Clear();
+		initialVertices.Clear();
 		normals.Clear();
 		BuildMesh();
 	}
 	
 	void Update() {
 		
-		if (vertices == null)
-			vertices = new List<Vector3>();			
+		if (initialVertices == null)
+			initialVertices = new List<Vector3>();			
 		if (normals == null)
 			normals = new List<Vector3>();
 
-		if (vertices.Count > 0 && animate)
+		if (initialVertices.Count > 0 && animate)
 		{
 			AnimateMesh();			
 		}
@@ -211,19 +213,23 @@ public class CinderMedusae : MonoBehaviour {
 
 	public void AnimateMesh()
 	{
-		Debug.Log(bodyVertexCount);
-		for (int index = 0; index < vertices.Count; index++)
+		var vertices = new Vector3[initialVertices.Count];
+		for (int index = 0; index < initialVertices.Count; index++)
 		{
 			if (index < bodyVertexCount)
 			{
-				vertices[index] += Mathf.Sin(vertices[index].y / HeadR * Mathf.PI * AnimationFrequency + Time.time * AnimationSpeed) * (normals[index] * AnimationAmount);				
+				vertices[index] = initialVertices[index] + 
+					Mathf.Sin(initialVertices[index].y / HeadR * Mathf.PI * HeadAnimationFrequency + 
+					Time.time * HeadAnimationSpeed) * (normals[index] * HeadAnimationAmount);				
 			}
 			else
 			{
-				vertices[index] += Mathf.Sin(vertices[index].y / HeadR * Mathf.PI * AnimationFrequency + Time.time * AnimationSpeed) * (normals[index] * AnimationAmount) * TentacleAnimationMultiplier;				
+				vertices[index] = initialVertices[index] + 
+					Mathf.Sin(initialVertices[index].y / TentacleLength * Mathf.PI * TentacleAnimationFrequency + 
+					Time.time * TentacleAnimationSpeed) * (normals[index] * TentacleAnimationAmount);				
 			}
 		}
-		mesh.vertices = vertices.ToArray();
+		mesh.vertices = vertices;
 		//mesh.RecalculateNormals();
 		//mesh.RecalculateTangents();
 		//mesh.RecalculateBounds();
@@ -246,13 +252,13 @@ public class CinderMedusae : MonoBehaviour {
 		mesh = new Mesh {name = "CinderMedusae"};
 		CombineInstance[] combine = new CombineInstance[NumTentacles + 1];
 
-		if (vertices == null)
+		if (initialVertices == null)
 		{
-			vertices = new List<Vector3>();
+			initialVertices = new List<Vector3>();
 		}
 		else
 		{
-			vertices.Clear();			
+			initialVertices.Clear();			
 		}
 
 		if (normals == null)
@@ -297,7 +303,7 @@ public class CinderMedusae : MonoBehaviour {
 					normal = new Vector3(0, 1, 0);
 				}
 				
-				vertices.Add(v1);
+				initialVertices.Add(v1);
 				normals.Add(normal);
 				
 				if (side % ((float)Nsides/NumTentacles) < 1 && segment == Nsegments/2 + TentacleYOffset)
@@ -327,12 +333,12 @@ public class CinderMedusae : MonoBehaviour {
 		
 		var bodyMesh = new Mesh
 		{
-			vertices = vertices.ToArray(),
+			vertices = initialVertices.ToArray(),
 			triangles = triangles.ToArray(),
 			normals = normals.ToArray()
 		};
 
-		bodyVertexCount = vertices.Count;
+		bodyVertexCount = initialVertices.Count;
 		
 		//mesh.uv = meshUV;
 		var btransform = new Matrix4x4();
@@ -360,7 +366,7 @@ public class CinderMedusae : MonoBehaviour {
 			
 			if (animate)
 			{
-				mesh.GetVertices(vertices);
+				mesh.GetVertices(initialVertices);
 				mesh.GetNormals(normals);
 			}
 		}
