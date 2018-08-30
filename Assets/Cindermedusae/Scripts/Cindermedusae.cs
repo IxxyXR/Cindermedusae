@@ -5,7 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshFilter))]
-public class CinderMedusae : MonoBehaviour {
+public class Cindermedusae : MonoBehaviour {
 
 	public float HeadR = 130;
 	

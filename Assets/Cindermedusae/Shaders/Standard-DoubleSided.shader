@@ -1,4 +1,5 @@
-﻿Shader "Standard-DoubleSided"
+﻿// https://gist.github.com/jminor/6a14271368e57b84c136d94906ae6603
+Shader "Standard-DoubleSided"
 {
 	Properties
 	{
